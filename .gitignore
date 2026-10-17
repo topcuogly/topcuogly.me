@@ -1,3 +1,7 @@
+.vscode/
+*.code-workspace
+.history/
+
 .opencode/
 opencode.json
 opencode.jsonc

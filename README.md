@@ -1,1 +1,1 @@
-Template of the [topcuogly.me](topcuogly.me).
+[topcuogly.me](topcuogly.me)'s template.
