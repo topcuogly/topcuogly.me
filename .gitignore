@@ -1,0 +1,39 @@
+# Operating systems
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors and local history
+.idea/
+.vscode/
+.history/
+*.swp
+*.swo
+*~
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dependencies and generated output
+node_modules/
+dist/
+build/
+_site/
+.cache/
+.parcel-cache/
+.sass-cache/
+
+# Local tooling, logs and temporary files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.log
+*.tmp
+*.bak
+coverage/
+.opencode/

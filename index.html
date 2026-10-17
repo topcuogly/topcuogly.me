@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111111" />
+    <meta name="description" content="[TEXT]" />
+    <title>[HEADER]</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <script>
+      (() => {
+        let savedTheme;
+        try { savedTheme = localStorage.getItem('theme'); } catch {}
+        document.documentElement.dataset.theme = savedTheme === 'light' || savedTheme === 'dark'
+          ? savedTheme : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      })();
+    </script>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --text: #f1f0f5;
+        --muted: #b8b6c7;
+        --base: #09090b;
+        --gradient: linear-gradient(125deg, #010102, #19191d, #050507, #1c1c20, #020203);
+        --card: #1b1b1b;
+        --border: #303030;
+        --focus: #cccccc;
+        --dust: #e7dcff;
+        --star-tail: #bac3d4;
+        --star-head: #f0f2ff;
+        --star-glow: #bac3d433;
+        --blue-tail: #91c9f5;
+        --blue-head: #e3f5ff;
+        --blue-glow: #a2d9ff66;
+        color: var(--text);
+        background: var(--base);
+        font-synthesis: none;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      :root[data-theme="light"] {
+        color-scheme: light;
+        --text: #24242b;
+        --muted: #555565;
+        --base: #f2f2f5;
+        --gradient: linear-gradient(125deg, #ffffff, #b7c4df, #edf0f7, #d6bcdc, #fff0df);
+        --card: #fcfcfd;
+        --border: #d5d5df;
+        --focus: #505064;
+        --dust: #776299;
+        --star-tail: #8d94ad;
+        --star-head: #5d6685;
+        --star-glow: #6b769533;
+        --blue-tail: #86b5d8;
+        --blue-head: #5688b5;
+        --blue-glow: #689bc044;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        padding: 64px 24px;
+        background: var(--base);
+        background-image: var(--gradient);
+        background-size: 300% 300%;
+        background-position: 50% 50%;
+      }
+
+      .profile {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 10px;
+        width: max-content;
+        max-width: 100%;
+        padding: 35px 40px;
+        text-align: left;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+      }
+      a { color: inherit; text-decoration: none; text-underline-offset: 5px; overflow-wrap: anywhere; }
+      a:focus-visible, button:focus-visible { outline: 2px solid var(--focus); outline-offset: 6px; border-radius: 2px; }
+      .theme-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 3;
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        color: var(--text);
+        background: var(--card);
+        cursor: pointer;
+      }
+      .theme-toggle svg { width: 20px; height: 20px; }
+      .moon-icon, [data-theme="light"] .sun-icon { display: none; }
+      [data-theme="light"] .moon-icon { display: block; }
+      .email, nav a { display: flex; align-items: center; justify-content: flex-start; gap: 12.5px; min-width: 0; min-height: 55px; padding-block: 10px; font-size: 18.75px; line-height: 1.6; transform-origin: left center; transition: transform 180ms ease, color 180ms ease; }
+      .email:focus-visible, nav a:focus-visible { transform: scale(1.07); }
+      .email svg, nav svg { width: 22.5px; height: 22.5px; flex-shrink: 0; }
+      .email span, nav span { position: relative; min-width: 0; }
+      .stardust-layer { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 2; }
+      .shooting-stars { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+      .shooting-star {
+        position: absolute;
+        height: 2px;
+        border-radius: 50%;
+        background: linear-gradient(90deg, transparent, var(--star-tail) 85%, var(--star-head));
+        box-shadow: 0 0 6px var(--star-glow);
+        opacity: 0;
+      }
+      .shooting-star.blue {
+        --star-tail: var(--blue-tail);
+        --star-head: var(--blue-head);
+        --star-glow: var(--blue-glow);
+      }
+      [data-theme="light"] .shooting-star {
+        --star-tail: var(--light-tail, #8d94ad);
+        --star-head: var(--light-head, #5d6685);
+        --star-glow: var(--light-glow, #6b769533);
+      }
+      .stardust-particle {
+        position: absolute;
+        background: var(--dust);
+        clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+      }
+      [data-theme="light"] .stardust-particle { background: var(--dust-color, var(--dust)); }
+      nav { display: grid; gap: 10px; min-width: 0; margin: 0; color: var(--muted); }
+      nav svg { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+      nav a:hover { color: var(--text); }
+      ::selection { background: #444444; color: #fff; }
+
+      .skip-link {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        padding: 12px;
+        background: var(--card);
+        z-index: 3;
+        transform: translateY(calc(-100% - 16px));
+      }
+
+      .skip-link:focus { transform: none; }
+
+      @media (max-width: 400px) {
+        body { padding-inline: 20px; }
+        .profile { padding: 30px; }
+      }
+
+      @media (hover: hover) {
+        .email:hover, nav a:hover { transform: scale(1.07); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .email, nav a { transition: none; }
+        .email:hover, nav a:hover, .email:focus-visible, nav a:focus-visible { transform: none; }
+        .stardust-layer, .shooting-stars { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">[TEXT]</a>
+    <button class="theme-toggle" type="button" aria-label="[TEXT]" title="[TEXT]">
+      <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+      <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.5 13A8.5 8.5 0 0 1 11 3.5 8.5 8.5 0 1 0 20.5 13Z"/></svg>
+    </button>
+    <main id="main" class="profile" aria-label="[TEXT]">
+      <!-- Email: replace [LINK] with a mailto: URL and [FILL] with the email address. -->
+      <a class="email" href="[LINK]">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        <span>[FILL]</span>
+      </a>
+      <nav aria-label="[TEXT]">
+        <!-- Link 1 -->
+        <a href="[LINK]" title="[TEXT]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m10 13 4-4m-6 7-2 2a4.24 4.24 0 0 1-6-6l4-4a4.24 4.24 0 0 1 6 0m4-2 2-2a4.24 4.24 0 0 1 6 6l-4 4a4.24 4.24 0 0 1-6 0" transform="translate(1 1) scale(.9)"/></svg>
+          <span>[LINK]</span>
+        </a>
+        <!-- Link 2 -->
+        <a href="[LINK]" title="[TEXT]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m10 13 4-4m-6 7-2 2a4.24 4.24 0 0 1-6-6l4-4a4.24 4.24 0 0 1 6 0m4-2 2-2a4.24 4.24 0 0 1 6 6l-4 4a4.24 4.24 0 0 1-6 0" transform="translate(1 1) scale(.9)"/></svg>
+          <span>[LINK]</span>
+        </a>
+        <!-- Link 3 -->
+        <a href="[LINK]" title="[TEXT]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m10 13 4-4m-6 7-2 2a4.24 4.24 0 0 1-6-6l4-4a4.24 4.24 0 0 1 6 0m4-2 2-2a4.24 4.24 0 0 1 6 6l-4 4a4.24 4.24 0 0 1-6 0" transform="translate(1 1) scale(.9)"/></svg>
+          <span>[LINK]</span>
+        </a>
+        <!-- Link 4 -->
+        <a href="[LINK]" title="[TEXT]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m10 13 4-4m-6 7-2 2a4.24 4.24 0 0 1-6-6l4-4a4.24 4.24 0 0 1 6 0m4-2 2-2a4.24 4.24 0 0 1 6 6l-4 4a4.24 4.24 0 0 1-6 0" transform="translate(1 1) scale(.9)"/></svg>
+          <span>[LINK]</span>
+        </a>
+      </nav>
+    </main>
+    <script>
+      const themeToggle = document.querySelector('.theme-toggle');
+      const systemTheme = window.matchMedia('(prefers-color-scheme: light)');
+      let themeOverride = null;
+      try { themeOverride = localStorage.getItem('theme'); } catch {}
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        // Set the first [TEXT] to "switch to light", the second to "switch to dark" in your language.
+        const label = theme === 'dark' ? '[TEXT]' : '[TEXT]';
+        themeToggle.setAttribute('aria-label', label);
+        themeToggle.title = label;
+        document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#09090b' : '#f2f2f5';
+      }
+      applyTheme(document.documentElement.dataset.theme);
+      themeToggle.addEventListener('click', () => {
+        themeOverride = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        applyTheme(themeOverride);
+        try { localStorage.setItem('theme', themeOverride); } catch {}
+      });
+      systemTheme.addEventListener('change', event => {
+        if (themeOverride !== 'light' && themeOverride !== 'dark') applyTheme(event.matches ? 'light' : 'dark');
+      });
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      // Independent random phases make a smooth, irregular route without sharp turns.
+      const phases = Array.from({ length: 4 }, () => Math.random() * Math.PI * 2);
+      const backgroundFrames = Array.from({ length: 241 }, (_, index) => {
+        const t = index / 240 * Math.PI * 2;
+        const x = 50 + 28 * Math.sin(t + phases[0]) + 15 * Math.sin(2 * t + phases[1]);
+        const y = 50 + 28 * Math.cos(t + phases[2]) + 15 * Math.sin(3 * t + phases[3]);
+        return { backgroundPosition: `${x}% ${y}%` };
+      });
+      const backgroundMotion = document.body.animate(backgroundFrames, {
+        duration: 90000,
+        iterations: Infinity,
+        easing: 'linear'
+      });
+      function updateBackgroundMotion() {
+        if (reducedMotion.matches || document.hidden) backgroundMotion.pause();
+        else backgroundMotion.play();
+      }
+      updateBackgroundMotion();
+
+      const layer = document.createElement('div');
+      layer.className = 'stardust-layer';
+      layer.setAttribute('aria-hidden', 'true');
+      document.body.append(layer);
+
+      const shootingStars = document.createElement('div');
+      shootingStars.className = 'shooting-stars';
+      shootingStars.setAttribute('aria-hidden', 'true');
+      document.body.append(shootingStars);
+      let shootingTimer = null;
+      let viewingTime = 0;
+      let visibleSince = document.hidden ? null : performance.now();
+
+      function shootingStarDelay() {
+        const elapsed = viewingTime + (visibleSince === null ? 0 : performance.now() - visibleSince);
+        // Gradually increase frequency, capped at four times the initial rate.
+        const factor = .25 + .75 * Math.exp(-elapsed / 120000);
+        return (6000 + Math.random() * 12000) * factor;
+      }
+
+      // Illustrative visual weights, not measured astronomical frequencies.
+      const meteorColors = [
+        { weight: 40, tail: '#aab2c6', head: '#ffffff' },
+        { weight: 25, tail: '#c4a244', head: '#fff2b0' },
+        { weight: 15, tail: '#c2824c', head: '#ffc68d' },
+        { weight: 10, tail: '#6d9bce', head: '#d1eaff' },
+        { weight: 8, tail: '#549e79', head: '#aaf0c4' },
+        { weight: 2, tail: '#bb6870', head: '#ffb2b5' }
+      ];
+      function pickMeteorColor() {
+        let roll = Math.random() * 100;
+        for (const color of meteorColors) {
+          roll -= color.weight;
+          if (roll < 0) return color;
+        }
+        return meteorColors[0];
+      }
+      const dustColors = ['#da4e78', '#be63c4', '#8861cf', '#477bd3', '#2699b3', '#319c76', '#b88a22', '#d97636'];
+
+      function emitShootingStar() {
+        if (shootingStars.childElementCount >= 12) return;
+        const star = document.createElement('i');
+        const angle = (20 + Math.random() * 35) * Math.PI / 180;
+        const rotation = `rotate(${angle}rad)`;
+        const size = .65 + Math.random() * 1.1;
+        const length = (65 + Math.random() * 55) * size;
+        const startX = Math.random() * window.innerWidth * .65;
+        const startY = Math.random() * window.innerHeight * .45;
+        // 20% retain the old speed; 80% use 37.5% of it: 50% on average.
+        const speed = (450 + Math.random() * 250) * (Math.random() < .2 ? 1 : .375);
+        const exitDistance = Math.min(
+          (window.innerWidth - startX + length) / Math.cos(angle),
+          (window.innerHeight - startY + length) / Math.sin(angle)
+        );
+        const reachesEdge = Math.random() < .4;
+        // Fade lifetime decreases linearly with speed (milliseconds vs px/s).
+        const fadeLifetime = 3600 - 4 * speed;
+        const duration = reachesEdge ? 1000 * exitDistance / speed : fadeLifetime;
+        const distance = speed * duration / 1000;
+        const brightness = .4 + Math.random() * .35;
+        star.className = 'shooting-star';
+        star.style.width = `${length}px`;
+        star.style.height = `${1.5 * size}px`;
+        star.style.left = `${startX}px`;
+        star.style.top = `${startY}px`;
+        if (Math.random() < .35) {
+          star.classList.add('blue');
+        }
+        // These properties are used only by the light-theme CSS rule.
+        const meteorColor = pickMeteorColor();
+        star.style.setProperty('--light-tail', meteorColor.tail);
+        star.style.setProperty('--light-head', meteorColor.head);
+        star.style.setProperty('--light-glow', `${meteorColor.tail}66`);
+        shootingStars.append(star);
+        const animation = star.animate([
+          { opacity: 0, transform: `translate(0, 0) ${rotation}` },
+          { opacity: brightness, offset: .15 },
+          { opacity: reachesEdge ? brightness : 0, transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) ${rotation}` }
+        ], { duration, easing: 'linear' });
+        animation.onfinish = () => star.remove();
+      }
+
+      function scheduleShootingStar() {
+        window.clearTimeout(shootingTimer);
+        shootingTimer = null;
+        if (reducedMotion.matches || document.hidden) {
+          shootingStars.replaceChildren();
+          return;
+        }
+        shootingTimer = window.setTimeout(() => {
+          const chance = Math.random();
+          const count = chance < .65 ? 1 : chance < .92 ? 2 : 3;
+          for (let i = 0; i < count; i++) emitShootingStar();
+          scheduleShootingStar();
+        }, shootingStarDelay());
+      }
+      scheduleShootingStar();
+
+      let hoveredLink = null;
+      let focusedLink = null;
+      let emitter = null;
+
+      function emitStars(link) {
+        const bounds = link.querySelector('span').getBoundingClientRect();
+        for (let i = 0; i < 15; i++) {
+          const star = document.createElement('i');
+          const angle = Math.random() * Math.PI * 2;
+          const distance = 22.5 + Math.random() * 40;
+          const size = 4 + Math.random() * 5;
+          star.className = 'stardust-particle';
+          star.style.setProperty('--dust-color', dustColors[Math.floor(Math.random() * dustColors.length)]);
+          star.style.width = star.style.height = `${size}px`;
+          star.style.left = `${bounds.left + Math.random() * bounds.width - size / 2}px`;
+          star.style.top = `${bounds.top + Math.random() * bounds.height - size / 2}px`;
+          layer.append(star);
+          const dx = Math.cos(angle) * distance;
+          const dy = Math.sin(angle) * distance;
+          const animation = star.animate([
+            { opacity: 0, transform: 'translate(0, 0) scale(.3) rotate(0deg)' },
+            { opacity: 1, offset: .2 },
+            { opacity: 0, transform: `translate(${dx}px, ${dy}px) scale(.1) rotate(${Math.random() * 180}deg)` }
+          ], { duration: 1600 + Math.random() * 1200, easing: 'ease-out' });
+          animation.onfinish = () => star.remove();
+        }
+      }
+
+      function updateEmitter() {
+        window.clearInterval(emitter);
+        emitter = null;
+        const link = hoveredLink || focusedLink;
+        if (reducedMotion.matches || document.hidden || !link) return;
+        emitStars(link);
+        emitter = window.setInterval(() => emitStars(link), 360);
+      }
+
+      document.querySelectorAll('.profile a').forEach(link => {
+        link.addEventListener('pointerenter', event => {
+          if (event.pointerType === 'touch') return;
+          hoveredLink = link;
+          updateEmitter();
+        });
+        link.addEventListener('pointerleave', () => {
+          if (hoveredLink === link) hoveredLink = null;
+          updateEmitter();
+        });
+        link.addEventListener('focus', () => {
+          focusedLink = link.matches(':focus-visible') ? link : null;
+          updateEmitter();
+        });
+        link.addEventListener('blur', () => {
+          focusedLink = null;
+          updateEmitter();
+        });
+      });
+      reducedMotion.addEventListener('change', () => {
+        layer.replaceChildren();
+        updateEmitter();
+        updateBackgroundMotion();
+        scheduleShootingStar();
+      });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && visibleSince !== null) {
+          viewingTime += performance.now() - visibleSince;
+          visibleSince = null;
+        } else if (!document.hidden && visibleSince === null) {
+          visibleSince = performance.now();
+        }
+        updateEmitter();
+        updateBackgroundMotion();
+        scheduleShootingStar();
+      });
+    </script>
+  </body>
+</html>
